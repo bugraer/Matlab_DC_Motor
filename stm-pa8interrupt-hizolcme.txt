@@ -1,0 +1,31 @@
+
+#include "stm32f4xx.h"
+int hiz=0, dd=5, a;
+void EXTI9_5_IRQHandler(){
+	EXTI->PR |= EXTI_PR_PR8;
+	hiz=hiz+1;
+}
+void SysTick_Handler(){
+dd= hiz / 2;
+
+hiz=0;
+}
+int main(){
+SysTick->LOAD &= ~SysTick_LOAD_RELOAD_Msk;
+SysTick->LOAD |=  (SysTick_LOAD_RELOAD_Msk &  16000000UL);
+	SysTick->CTRL |= SysTick_CTRL_CLKSOURCE_Msk;
+	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
+	NVIC_EnableIRQ(SysTick_IRQn);
+	SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
+
+	
+EXTI->IMR |= EXTI_IMR_IM8; // KESME GIRISI PA8, PA10, PA15
+	EXTI->RTSR |= EXTI_RTSR_TR8; 
+	EXTI->FTSR |= EXTI_FTSR_TR8;	
+	
+	NVIC_EnableIRQ(23); //5_9 ARASI INTERRUPT
+	NVIC_EnableIRQ(SysTick_IRQn);
+
+
+	while(1);	
+} 
